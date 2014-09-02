@@ -8,26 +8,28 @@ function _zsh_python_prompt_pyenv(){
     #~/.pyenv/versions/2.7.8/bin/python2.7
     #~/.pyenv/versions/pyenv_t/bin/python
 
-    local python_path pyver pytype updated_at pyenv_expire_sec symbol_pyenv now
+    local python_path pyver pytype now \
+        prompt prompt_cache updated_at pyenv_expire_sec pyenv_symbol
 
     python_path=$1
-    pyver=$2
 
-    zstyle -s ':zsh-python-prompt:' pytype pytype
+    zstyle -s ':zsh-python-prompt:' prompt prompt
+    zstyle -s ':zsh-python-prompt:' prompt_cache prompt_cache
     zstyle -s ':zsh-python-prompt:' updated_at updated_at
     zstyle -s ':zsh-python-prompt:pyenv:' expire_sec pyenv_expire_sec
 
     now=$(date +%s)
 
-    if [[ -n $pytype && $now -lt $(($updated_at + $pyenv_expire_sec)) ]]; then
+    if [[ -n $prompt_cache && $now -lt $(($updated_at + $pyenv_expire_sec)) ]]; then
         # Don't update
-        zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
+        zstyle ':zsh-python-prompt:' prompt "$prompt_cache"
         return 1
     fi
 
     zstyle ':zsh-python-prompt:' updated_at "$now"
 
     python_path=$(python -c "import sys,os; print(os.path.realpath(sys.executable))")
+    pyver=$(_zsh_python_prompt_get_pyver)
 
     if [[ $python_path == '/usr/bin/python' ]]; then
         pytype='system'
@@ -43,20 +45,18 @@ function _zsh_python_prompt_pyenv(){
     fi
 
     zstyle -s ':zsh-python-prompt:pyenv:' symbol pyenv_symbol
-    pytype="$pyenv_symbol$pytype"
-    zstyle ':zsh-python-prompt:' pytype "$pytype"
 
-    # Add updated symbol(*)
-    pytype="*$pytype"
+    prompt_cache="$pyenv_symbol$pytype@$pyver"
 
-    zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
+    zstyle ':zsh-python-prompt:' prompt_cache "$prompt_cache"
+    zstyle ':zsh-python-prompt:' prompt "*$prompt_cache"
 }
 
 function _zsh_python_prompt_pybrew(){
     local python_path pyver pytype
 
     python_path=$1
-    pyver=$2
+    pyver=$(_zsh_python_prompt_get_pyver)
 
     if [ -n "$VIRTUAL_ENV" ]; then
         pytype=$(basename "$VIRTUAL_ENV")
@@ -72,7 +72,7 @@ function _zsh_python_prompt_normal(){
     local python_path pyver pytype
 
     python_path=$1
-    pyver=$2
+    pyver=$(_zsh_python_prompt_get_pyver)
 
     if [[ $python_path == '/usr/bin/python' ]]; then
         pytype='system'
@@ -90,30 +90,33 @@ function _zsh_python_prompt_normal(){
     zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
 }
 
+function _zsh_python_prompt_get_pyver(){
+    python -V 2>&1 | sed -e 's/Python //'
+}
+
 function zsh-python-prompt-update(){
-    local python_path pytype pyver prompt
+    local python_path prompt
 
     python_path=$(which python 2> /dev/null)
     if [[ -z $python_path ]]; then
         zstyle ':zsh-python-prompt:' prompt 'none'
+        zstyle ':zsh-python-prompt:' prompt_cache ''
         return
     fi
-
-    pyver=$(python -V 2>&1 | sed -e 's/Python //')
 
     if [[ $python_path =~ '/.pyenv/shims/python'
         || $python_path =~ '/.pyenv/versions/' ]]; then
         # pyenv
-        _zsh_python_prompt_pyenv "$python_path" "$pyver"
+        _zsh_python_prompt_pyenv "$python_path"
     else
         if [[ $python_path =~ '/.pythonbrew/' ]]; then
             # pythohbrew
-            _zsh_python_prompt_pybrew "$python_path" "$pyver"
+            _zsh_python_prompt_pybrew "$python_path"
         else
             # normal
-            _zsh_python_prompt_normal "$python_path" "$pyver"
+            _zsh_python_prompt_normal "$python_path"
         fi
-        zstyle ':zsh-python-prompt:' pytype ''
+        zstyle ':zsh-python-prompt:' prompt_cache ''
     fi
 }
 

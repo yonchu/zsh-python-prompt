@@ -40,7 +40,7 @@
 
 # Initialize settings.
 function(){
-    local expire_sec symbol_pyenv
+    local pyenv_expire_sec pyenv_symbol
     zstyle -s ':zsh-python-prompt:pyenv:' expire_sec pyenv_expire_sec
     if [[ -z $pyenv_expire_sec ]]; then
         zstyle ':zsh-python-prompt:pyenv:' expire_sec 30
@@ -64,7 +64,7 @@ add-zsh-hook preexec _zsh_python_prompt_preexec_hook_func
 function _zsh_python_prompt_preexec_hook_func() {
     case "$2" in
         pyenv*)
-            zstyle ':zsh-python-prompt:' pytype ''
+            zstyle ':zsh-python-prompt:' prompt_cache ''
         ;;
     esac
 }
