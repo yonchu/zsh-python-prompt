@@ -71,4 +71,4 @@ zstyle ':zsh-python-prompt:pyenv:' symbol '⌘'
 
 ## License
 
-[MIT License](http://www.opensource.org/licenses/mit-license.php)
+[MIT License](LICENSE)

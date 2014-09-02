@@ -6,11 +6,11 @@
 #
 #  Version     : 0.0.1
 #  Author      : Yonchu <yuyuchu3333@gmail.com>
-#  License     : MIT License
+#  License     : The MIT License (MIT)
 #  Repository  : https://github.com/yonchu/zsh-python-prompt
 #  Last Change : 02 Sep 2014.
 #
-#  Copyright (c) 2014 Yonchu.
+#  Copyright (c) 2014 yonchu
 #
 # -----------------------------------------------------------------------------
 # USAGE
