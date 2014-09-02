@@ -8,7 +8,7 @@ function _zsh_python_prompt_pyenv(){
     #~/.pyenv/versions/2.7.8/bin/python2.7
     #~/.pyenv/versions/pyenv_t/bin/python
 
-    local python_path pyver pytype now \
+    local python_path pyver pytype now pyver_file \
         prompt prompt_cache updated_at pyenv_expire_sec pyenv_symbol
 
     python_path=$1
@@ -17,16 +17,21 @@ function _zsh_python_prompt_pyenv(){
     zstyle -s ':zsh-python-prompt:' prompt_cache prompt_cache
     zstyle -s ':zsh-python-prompt:' updated_at updated_at
     zstyle -s ':zsh-python-prompt:pyenv:' expire_sec pyenv_expire_sec
+    zstyle -s ':zsh-python-prompt:pyenv:' pyver_file pre_pyver_file
 
+    pyver_file=$(_zsh_python_prompt_get_pyver_file)
     now=$(date +%s)
 
-    if [[ -n $prompt_cache && $now -lt $(($updated_at + $pyenv_expire_sec)) ]]; then
+    if [[ -n $prompt_cache
+        && $pyver_file == $pre_pyver_file
+        && $now -lt $(($updated_at + $pyenv_expire_sec)) ]]; then
         # Don't update
         zstyle ':zsh-python-prompt:' prompt "$prompt_cache"
         return 1
     fi
 
     zstyle ':zsh-python-prompt:' updated_at "$now"
+    zstyle ':zsh-python-prompt:pyenv:' pyver_file "$pyver_file"
 
     python_path=$(python -c "import sys,os; print(os.path.realpath(sys.executable))")
     pyver=$(_zsh_python_prompt_get_pyver)
@@ -92,6 +97,21 @@ function _zsh_python_prompt_normal(){
 
 function _zsh_python_prompt_get_pyver(){
     python -V 2>&1 | sed -e 's/Python //'
+}
+
+function _zsh_python_prompt_get_pyver_file() {
+    #.python-version
+    local pyver_file
+    local curpath="$PWD"
+    while [ "$curpath" ]; do
+        pyver_file="$curpath/.python-version"
+        if [[ -e "$pyver_file" ]]; then
+            echo "$pyver_file"
+            return
+        fi
+        curpath=${curpath%/*}
+    done
+    return 1
 }
 
 function zsh-python-prompt-update(){
