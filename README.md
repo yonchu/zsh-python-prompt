@@ -3,6 +3,8 @@ zsh-python-prompt
 
 Display pyhton version and virtualenv name in zsh prompt.
 
+![ScreenShot01](img/ScreenShot01.png)
+
 Sample
 ------
 
