@@ -1,0 +1,122 @@
+#
+# zsh-python-prompt-update
+#
+
+
+function _zsh_python_prompt_pyenv(){
+    #/usr/local/Cellar/python/2.7.8_1/Frameworks/Python.framework/Versions/2.7/bin/python2.7
+    #~/.pyenv/versions/2.7.8/bin/python2.7
+    #~/.pyenv/versions/pyenv_t/bin/python
+
+    local python_path pyver pytype updated_at pyenv_expire_sec symbol_pyenv now
+
+    python_path=$1
+    pyver=$2
+
+    zstyle -s ':zsh-python-prompt:' pytype pytype
+    zstyle -s ':zsh-python-prompt:' updated_at updated_at
+    zstyle -s ':zsh-python-prompt:pyenv:' expire_sec pyenv_expire_sec
+
+    now=$(date +%s)
+
+    if [[ -n $pytype && $now -lt $(($updated_at + $pyenv_expire_sec)) ]]; then
+        # Don't update
+        zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
+        return 1
+    fi
+
+    zstyle ':zsh-python-prompt:' updated_at "$now"
+
+    python_path=$(python -c "import sys,os; print(os.path.realpath(sys.executable))")
+
+    if [[ $python_path == '/usr/bin/python' ]]; then
+        pytype='system'
+    elif [[ $python_path =~ '^/usr/local' ]]; then
+        pytype='local'
+    elif [[ $python_path =~ '/.pyenv/versions/' ]]; then
+        pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/\([^/]*\)/.*%\1%')
+        if [[ $pytype == $pyver ]]; then
+            pytype=
+        fi
+    else
+        pytype=$python_path
+    fi
+
+    zstyle -s ':zsh-python-prompt:pyenv:' symbol pyenv_symbol
+    pytype="$pyenv_symbol$pytype"
+    zstyle ':zsh-python-prompt:' pytype "$pytype"
+
+    # Add updated symbol(*)
+    pytype="*$pytype"
+
+    zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
+}
+
+function _zsh_python_prompt_pybrew(){
+    local python_path pyver pytype
+
+    python_path=$1
+    pyver=$2
+
+    if [ -n "$VIRTUAL_ENV" ]; then
+        pytype=$(basename "$VIRTUAL_ENV")
+    else
+        pytype=$(echo "$python_path" | sed 's%.*Python-\([^/]*\)/.*%\1%' | tr -d '.')
+    fi
+    pytype="!!$pytype"
+
+    zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
+}
+
+function _zsh_python_prompt_normal(){
+    local python_path pyver pytype
+
+    python_path=$1
+    pyver=$2
+
+    if [[ $python_path == '/usr/bin/python' ]]; then
+        pytype='system'
+    elif [[ $python_path =~ '^/usr/local' ]]; then
+        pytype='local'
+    else
+        if [ -n "$VIRTUAL_ENV" ]; then
+            pytype=$(basename "$VIRTUAL_ENV")
+        else
+            pytype=$python_path
+        fi
+        pytype="!!$pytype"
+    fi
+
+    zstyle ':zsh-python-prompt:' prompt "$pytype@$pyver"
+}
+
+function zsh-python-prompt-update(){
+    local python_path pytype pyver prompt
+
+    python_path=$(which python 2> /dev/null)
+    if [[ -z $python_path ]]; then
+        zstyle ':zsh-python-prompt:' prompt 'none'
+        return
+    fi
+
+    pyver=$(python -V 2>&1 | sed -e 's/Python //')
+
+    if [[ $python_path =~ '/.pyenv/shims/python'
+        || $python_path =~ '/.pyenv/versions/' ]]; then
+        # pyenv
+        _zsh_python_prompt_pyenv "$python_path" "$pyver"
+    else
+        if [[ $python_path =~ '/.pythonbrew/' ]]; then
+            # pythohbrew
+            _zsh_python_prompt_pybrew "$python_path" "$pyver"
+        else
+            # normal
+            _zsh_python_prompt_normal "$python_path" "$pyver"
+        fi
+        zstyle ':zsh-python-prompt:' pytype ''
+    fi
+}
+
+zsh-python-prompt-update "$@"
+
+# vim: ft=zsh

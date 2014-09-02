@@ -1,0 +1,13 @@
+#
+#  zsh-python-prompt
+#
+
+function zsh-python-prompt(){
+    local prompt
+    zstyle -s ':zsh-python-prompt:' prompt prompt
+    echo "$prompt"
+}
+
+zsh-python-prompt "$@"
+
+# vim: ft=zsh
