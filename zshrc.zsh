@@ -60,7 +60,7 @@ autoload -Uz zsh-python-prompt
 autoload -Uz zsh-python-prompt-update
 
 # Add hook function to preexec
-add-zsh-hook preexec _zsh_python_prompt_preexec_hook_func
+preexec_functions+=(_zsh_python_prompt_preexec_hook_func)
 function _zsh_python_prompt_preexec_hook_func() {
     case "$2" in
         pyenv*)
@@ -70,7 +70,7 @@ function _zsh_python_prompt_preexec_hook_func() {
 }
 
 # Add hook function to precmd
-add-zsh-hook precmd _zsh_python_prompt_precmd_hook_func
+precmd_functions+=(_zsh_python_prompt_precmd_hook_func)
 function _zsh_python_prompt_precmd_hook_func() {
     zsh-python-prompt-update
     ZSH_PYTHON_PROMPT=$(zsh-python-prompt)
