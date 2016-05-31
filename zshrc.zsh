@@ -53,7 +53,8 @@ function(){
 }
 
 # Add fpath
-fpath=(~/.zsh/plugins/zsh-python-prompt/functions(N-/) ${fpath})
+_zsh_python_prompt_dir=${0:A:h}
+fpath=(${_zsh_python_prompt_dir}/functions(N-/) ${fpath})
 
 # autoload
 autoload -Uz zsh-python-prompt
