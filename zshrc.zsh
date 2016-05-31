@@ -8,7 +8,7 @@
 #  Author      : Yonchu <yuyuchu3333@gmail.com>
 #  License     : The MIT License (MIT)
 #  Repository  : https://github.com/yonchu/zsh-python-prompt
-#  Last Change : 02 Sep 2014.
+#  Last Change : 31 May 2016.
 #
 #  Copyright (c) 2014 yonchu
 #
@@ -53,8 +53,12 @@ function(){
 }
 
 # Add fpath
-_zsh_python_prompt_dir=${0:A:h}
-fpath=(${_zsh_python_prompt_dir}/functions(N-/) ${fpath})
+autoload -Uz is-at-least
+if is-at-least 4.3.10; then
+    fpath=(${${funcsourcetrace[1]%:*}:A:h}/functions(N-/) ${fpath})
+else
+    fpath=(${${funcsourcetrace[1]%:*}:h}/functions(N-/) ${fpath})
+fi
 
 # autoload
 autoload -Uz zsh-python-prompt
