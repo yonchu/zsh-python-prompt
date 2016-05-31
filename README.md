@@ -1,12 +1,10 @@
-zsh-python-prompt
-======================
+# zsh-python-prompt
 
 Display pyhton version and virtualenv name in zsh prompt.
 
 ![ScreenShot01](img/ScreenShot01.png)
 
-Sample
-------
+## Sample
 
 Python: ``/usr/bin/python``
 
@@ -41,8 +39,7 @@ Python: Use pyenv (``/Users/user/.pyenv/versions/pyenv_t/bin/python``)
 pyenv_test (set by /Users/user/hoge/fuga/pyenv_test/.python-version)
 ```
 
-Installation
----------------
+## Installation
 
 1.Source ``zsh-python-prompt/zshrc.zsh`` file.
 
@@ -62,8 +59,7 @@ PROMPT+='$ZSH_PYTHON_PROMPT'
 setopt prompt_subst
 ```
 
-Customaize
-----------
+## Customize
 
 Change pyenv symbol.
 
