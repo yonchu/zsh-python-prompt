@@ -61,6 +61,7 @@ else
 fi
 
 # autoload
+autoload -Uz add-zsh-hook
 autoload -Uz zsh-python-prompt
 autoload -Uz zsh-python-prompt-update
 
